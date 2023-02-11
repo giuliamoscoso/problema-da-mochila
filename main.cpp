@@ -1,28 +1,41 @@
 #include <cstdlib>
 #include <iostream>
 #include <random>
+
 using namespace std;
 random_device rd;
 
-int* Individual(int numItens){
+int* Individual(int numItens, int pesosValores[][2], int pesoMaximo){
 //  Cria indivíduo da população
     int *individuo = (int*)malloc(numItens * sizeof(int));
+    int pesoTotal = 0;
 
     mt19937 mt(rd());
     uniform_real_distribution<float> dist(0,1);
 
-    for(int i=0;i<numItens;i++){
+    for(int i=0; i < numItens; i++){
         individuo[i] = round(dist(mt));
+        if(individuo[i] == 1){
+			for(int i = 0; i < sizeof(pesosValores); i++){
+				pesoTotal += pesosValores[i][1];
+			}
+		}
     }
+    
+    if(pesoTotal > pesoMaximo){
+    	for(){
+		}
+	}
+    
     return individuo;
 }
 
-int** Population(int numIndividuo,int numItens){
+int** Population(int numCromossomos,int numItens, int pesosValores[][2], int pesoMaximo){
 //	Cria população/conjunto de indivíduos
-	int **population = (int**)malloc(numIndividuo * sizeof(int*));
+	int **population = (int**)malloc(numCromossomos * sizeof(int*));
 	
-	for(int i = 0; i < numIndividuo; i++){
-	    population[i] = Individual(numItens);
+	for(int i = 0; i < numCromossomos; i++){
+	    population[i] = Individual(numItens, pesosValores, pesoMaximo);
 	}
 	return population;
 };
@@ -60,11 +73,11 @@ int main(){
     int pesoMaximo = 140;
     int numCromossomos = 100;
     int geracoes = 70;
-    int numItens = (sizeof(pesosValores)/sizeof(*pesosValores));
+    int numItens = (sizeof(pesosValores)/sizeof(int));
     
 	int **populacao;
-	populacao = Population(numCromossomos, numItens);
-	cout<<sizeof(populacao);
+	populacao = Population(numCromossomos, numItens, pesosValores, pesoMaximo);
+//	cout<<sizeof(populacao);
 	
 //	for(int i = 0; i < 10; i++){
 //		for(int j = 0; j < 10; j++){
