@@ -12,8 +12,9 @@ int* Individual(int numItens, int pesosValores[][2], int pesoMaximo){
 
     mt19937 mt(rd());
     uniform_real_distribution<float> dist(0,1);
-
-    for(int i=0; i < numItens; i++){
+	while(pesoTotal > pesoMaximo){
+		
+		for(int i=0; i < numItens; i++){
         individuo[i] = round(dist(mt));
         if(individuo[i] == 1){
 			for(int i = 0; i < sizeof(pesosValores); i++){
@@ -21,8 +22,10 @@ int* Individual(int numItens, int pesosValores[][2], int pesoMaximo){
 			}
 		}
     }
+	}
     
-    if(pesoTotal > pesoMaximo){
+    
+    if(){
     	for(){
 		}
 	}
