@@ -6,45 +6,57 @@ using namespace std;
 random_device rd;
 
 int* Individual(int numItens, int pesosValores[][2], int pesoMaximo){
-//  Cria indivíduo da população
+//  Cria indivï¿½duo da populaï¿½ï¿½o
     int *individuo = (int*)malloc(numItens * sizeof(int));
     int pesoTotal = 0;
 
     mt19937 mt(rd());
     uniform_real_distribution<float> dist(0,1);
-	while(pesoTotal > pesoMaximo){
-		
 		for(int i=0; i < numItens; i++){
-        individuo[i] = round(dist(mt));
-        if(individuo[i] == 1){
-			for(int i = 0; i < sizeof(pesosValores); i++){
-				pesoTotal += pesosValores[i][1];
-			}
-		}
+			individuo[i] = round(dist(mt));
     }
-	}
-    
-    
-    if(){
-    	for(){
+	while(true){
+		for(int i=0; i < numItens; i++){
+			if(individuo[i] == 1){
+				pesoTotal += pesosValores[i][1];
+						// cout<<pesosValores[i][1]<<endl;
+						// cout<<"maximo"<<pesoMaximo<<endl;
+					
+					}
+			cout<<individuo[i];
+			}
+
+		cout<<endl;
+		if(pesoTotal > pesoMaximo){
+			pesoTotal=0;
+			individuo[rand()%numItens] = 0;
+		}else{
+			return individuo;
 		}
-	}
-    
-    return individuo;
+
+		}
+
 }
 
 int** Population(int numCromossomos,int numItens, int pesosValores[][2], int pesoMaximo){
-//	Cria população/conjunto de indivíduos
+//	Cria populaï¿½ï¿½o/conjunto de indivï¿½duos
 	int **population = (int**)malloc(numCromossomos * sizeof(int*));
 	
 	for(int i = 0; i < numCromossomos; i++){
-	    population[i] = Individual(numItens, pesosValores, pesoMaximo);
+		cout<<"chamada"<<i<<endl;
+	    	population[i] = Individual(numItens, pesosValores, pesoMaximo);
+		
 	}
+	// for(int i=0;i<numCromossomos;i++){
+	// 	for(int j=0;j<numItens;j++){
+	// 		cout<<population[1][j]<<" ";
+	// 	}
+	// }
 	return population;
 };
 
 //int Avaliacao(int *individuo, int pesoMaximo, int pesosValores){
-////	Faz avaliação do indivíduo
+////	Faz avaliaï¿½ï¿½o do indivï¿½duo
 //	int pesoTotal = 0;
 //	int valorTotal = 0;
 //
@@ -61,7 +73,7 @@ int** Population(int numCromossomos,int numItens, int pesosValores[][2], int pes
 //}
 //
 //	float MediaAvaliacao(int **populacao, int pesoMaximo, int pesosValores){
-////		Encontra avaliação média da população
+////		Encontra avaliaï¿½ï¿½o mï¿½dia da populaï¿½ï¿½o
 //	int somatorio = 0;
 //	
 //	for(int i = 0; i < sizeof(individuo); i++){
@@ -76,7 +88,8 @@ int main(){
     int pesoMaximo = 140;
     int numCromossomos = 100;
     int geracoes = 70;
-    int numItens = (sizeof(pesosValores)/sizeof(int));
+    int numItens = 10;
+	cout<<numItens;
     
 	int **populacao;
 	populacao = Population(numCromossomos, numItens, pesosValores, pesoMaximo);
