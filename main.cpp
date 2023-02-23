@@ -61,7 +61,7 @@ void lerArquivo(string filename) {
   // cout << "End-of-file reached.." << endl;
 }
 
-vector<int> Individual(int numItens, vector<pair<int, int>> valorPeso,
+vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
                        int pesoMaximo) {
   // Cria indivíduo da popula��o
   vector<int> individuo;
@@ -78,7 +78,7 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valorPeso,
   while (true) {
     for (auto i : individuo) {
       if (i == 1) {
-        pesoTotal += valorPeso[i].second;
+        pesoTotal += valoresPesos[i].second;
       }
     }
     if (pesoTotal > pesoMaximo) {
@@ -91,35 +91,35 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valorPeso,
 }
 
 vector<vector<int>> Population(int numCromossomos, int numItens,
-                               vector<pair<int, int>> valorPeso,
+                               vector<pair<int, int>> valoresPesos,
                                int pesoMaximo) {
   // Cria população/conjunto de indivíduos
   vector<vector<int>> population;
 
   for (int i = 0; i < numCromossomos; i++) {
-    population.push_back(Individual(numItens, valorPeso, pesoMaximo));
+    population.push_back(Individual(numItens, valoresPesos, pesoMaximo));
   }
   return population;
 };
 
-int Avaliacao(vector<int> individuo, vector<pair<int, int>> valorPeso) {
+int Avaliacao(vector<int> individuo, vector<pair<int, int>> valoresPesos) {
   // Faz avaliação do indivíduo
   int valorTotal = 0;
 
   for (auto i : individuo) {
-    valorTotal += (i * valorPeso[i].second);
+    valorTotal += (i * valoresPesos[i].second);
   }
 
   return valorTotal;
 }
 
 float MediaAvaliacao(vector<vector<int>> populacao,
-                     vector<pair<int, int>> valorPeso) {
+                     vector<pair<int, int>> valoresPesos) {
   // Encontra avaliação média da população
   int somatorio = 0;
 
   for (auto individuo : populacao) {
-    somatorio += Avaliacao(individuo, valorPeso);
+    somatorio += Avaliacao(individuo, valoresPesos);
   }
 
   return somatorio / populacao.size();
@@ -127,17 +127,13 @@ float MediaAvaliacao(vector<vector<int>> populacao,
 
 int main() {
   lerArquivo("1");
-  vector<pair<int, int>> valorPeso = {{4, 30},    {8, 10},   {8, 30},  {25, 75},
-                                      {2, 10},    {50, 100}, {6, 300}, {12, 50},
-                                      {100, 400}, {8, 300}};
   vector<float> medias;
-  int pesoMaximo = 140;
-  int numItens = 10;
   int numCromossomos = 100;
   int geracoes = 80;
 
-  auto populacao = Population(numCromossomos, numItens, valorPeso, pesoMaximo);
-  medias.push_back(MediaAvaliacao(populacao, valorPeso));
+  auto populacao =
+      Population(numCromossomos, dados.numItems, valoresPesos, dados.pesoMax);
+  medias.push_back(MediaAvaliacao(populacao, valoresPesos));
   cout << "Média da geração 0: " << medias[0] << endl;
 
   return 0;
