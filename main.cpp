@@ -4,6 +4,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 struct dadosGerais {
   int numItems;
@@ -13,6 +14,7 @@ struct dadosGerais {
 };
 using namespace std;
 vector<pair<int, int>> valoresPesos;
+int numCromossomos = 100;
 dadosGerais dados;
 random_device rd;
 
@@ -69,6 +71,7 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
 
   mt19937 mt(rd());
   uniform_real_distribution<float> dist(0, 1);
+  uniform_int_distribution<int> aleatorio(0, (numCromossomos - 1));
 
   for (int i = 0; i < numItens; i++) {
     individuo.push_back(round(dist(mt)));
@@ -76,14 +79,15 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
 
   // Corrige indivíduo caso ultrapasse o peso máximo
   while (true) {
-    for (auto i : individuo) {
-      if (i == 1) {
+    for (int i = 0; i < individuo.size(); i++) {
+      if (individuo[i] == 1) {
         pesoTotal += valoresPesos[i].second;
       }
     }
     if (pesoTotal > pesoMaximo) {
       pesoTotal = 0;
-      individuo[rand() % individuo.size()] = 0;
+      int index = aleatorio(mt);
+      individuo[index] = 0;
     } else {
       return individuo;
     }
@@ -125,16 +129,58 @@ float MediaAvaliacao(vector<vector<int>> populacao,
   return somatorio / populacao.size();
 }
 
+bool CompararIntervalo(const pair<int, vector<int>> &a, const pair<int, vector<int>> &b) {
+  return (a.first > b.first);
+}
+
+vector<pair<int,vector<int>>> DividirVector(vector<pair<int,vector<int>>> &IndividuoValor, int i1, int i2){
+  auto primeiro = IndividuoValor.cbegin() + i1;
+  auto ultimo = IndividuoValor.cbegin() + i2;
+  vector<pair<int,vector<int>>> vetorDividido(primeiro, ultimo);
+  return vetorDividido;
+}
+
+vector<vector<int>> Cruzamento(vector<pair<int,vector<int>>> pai, vector<pair<int,vector<int>>> mae){
+  // Cria filho (pai + mãe)
+  vector<int> filho;
+  for(int i = 0; i<(pai.data()->second.size()/2); i++){
+    int valor = pai.data()->second[i];
+    filho.push_back(valor);
+  }
+  vector<vector<int>> returnFilho;
+  return returnFilho;
+}
+
+void Evolution(vector<vector<int>> populacao, int pesoMaximo,
+               vector<pair<int, int>> valoresPesos, int numCromossomos, float taxaMutacao = 0.05) {
+  // Tabula cada individuo e sua avaliação
+  vector<pair<int,vector<int>>> IndividuoValor;
+  
+  for (auto individuo : populacao) {
+    IndividuoValor.push_back(make_pair(Avaliacao(individuo, valoresPesos), individuo));
+  }
+  sort(IndividuoValor.begin(), IndividuoValor.end(), CompararIntervalo);
+
+  vector<pair<int,vector<int>>> mae = DividirVector(IndividuoValor, 0, IndividuoValor.size() / 2);
+  vector<pair<int,vector<int>>> pai = DividirVector(IndividuoValor, 50, IndividuoValor.size());
+  
+  vector<vector<int>> novaPopulacao = Cruzamento(pai, mae);
+  }
+
 int main() {
   lerArquivo("1");
   vector<float> medias;
-  int numCromossomos = 100;
   int geracoes = 80;
 
   auto populacao =
       Population(numCromossomos, dados.numItems, valoresPesos, dados.pesoMax);
+
   medias.push_back(MediaAvaliacao(populacao, valoresPesos));
   cout << "Média da geração 0: " << medias[0] << endl;
+
+  for (int i = 0; i < geracoes; i++) {
+    Evolution(populacao, dados.pesoMax, valoresPesos, numCromossomos);
+  }
 
   return 0;
 }
