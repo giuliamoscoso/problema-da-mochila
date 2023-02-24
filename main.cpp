@@ -7,14 +7,13 @@
 #include <algorithm>
 
 struct dadosGerais {
-  int numItems;
+  int numItens;
   int pesoMax;
   int pesoOtimo;
   int valorOtimo;
 };
 using namespace std;
 vector<pair<int, int>> valoresPesos;
-int numCromossomos = 100;
 dadosGerais dados;
 random_device rd;
 
@@ -31,7 +30,7 @@ void lerArquivo(string filename) {
 
   indata >> num;
   int NumItems = num;
-  dados.numItems = NumItems;
+  dados.numItens = NumItems;
 
   indata >> num;
   dados.pesoMax = num;
@@ -71,7 +70,7 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
 
   mt19937 mt(rd());
   uniform_real_distribution<float> dist(0, 1);
-  uniform_int_distribution<int> aleatorio(0, (numCromossomos - 1));
+  uniform_int_distribution<int> aleatorio(0, (dados.numItens - 1));
 
   for (int i = 0; i < numItens; i++) {
     individuo.push_back(round(dist(mt)));
@@ -209,14 +208,14 @@ int main() {
   int geracoes = 80;
 
   auto populacao =
-      Population(numCromossomos, dados.numItems, valoresPesos, dados.pesoMax);
+      Population(dados.numItens, dados.numItens, valoresPesos, dados.pesoMax);
 
   medias.push_back(MediaAvaliacao(populacao, valoresPesos));
   cout << "Média da geração 0: " << medias[0] << endl;
 
   vector<pair<int,vector<int>>> novaPopulacao;
   for (int i = 0; i < geracoes; i++) {
-    novaPopulacao = Evolution(populacao, dados.pesoMax, valoresPesos, numCromossomos);
+    novaPopulacao = Evolution(populacao, dados.pesoMax, valoresPesos, dados.numItens);
   }
 
   int index = 0;
