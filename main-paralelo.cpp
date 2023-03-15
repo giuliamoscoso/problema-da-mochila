@@ -16,6 +16,7 @@ struct dadosGerais {
 };
 using namespace std;
 vector<pair<int, int>> valoresPesos;
+float taxaMutacao = 0.05;
 int numThreads = 4;
 dadosGerais dados;
 random_device rd;
@@ -32,13 +33,11 @@ void lerArquivo(string filename) {
   }
 
   indata >> num;
-  int NumItems = num;
-  dados.numItens = NumItems;
 
   indata >> num;
   dados.pesoMax = num;
 
-  for (int i = 0; i < NumItems; i++) {
+  for (int i = 0; i < dados.numItens; i++) {
     if (indata.eof())
       break;
 
@@ -65,6 +64,29 @@ void lerArquivo(string filename) {
   // cout << "End-of-file reached.." << endl;
 }
 
+vector<int> corrigeIndividuo(vector<int> individuo){
+  // Corrige indivíduo caso ultrapasse o peso máximo
+  int pesoTotal = 0;
+
+  mt19937 mt(rd());
+  uniform_int_distribution<int> aleatorio(0, (dados.numItens - 1));
+
+  while (true) {
+    for (int i = 0; i < individuo.size(); i++) {
+      if (individuo[i] == 1) {
+        pesoTotal += valoresPesos[i].second;
+      }
+    }
+    if (pesoTotal > dados.pesoMax) {
+      pesoTotal = 0;
+      int index = aleatorio(mt);
+      individuo[index] = 0;
+    } else {
+      return individuo;
+    }
+  }
+}
+
 vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
                        int pesoMaximo) {
   // Cria indivíduo da popula��o
@@ -73,27 +95,12 @@ vector<int> Individual(int numItens, vector<pair<int, int>> valoresPesos,
 
   mt19937 mt(rd());
   uniform_real_distribution<float> dist(0, 1);
-  uniform_int_distribution<int> aleatorio(0, (dados.numItens - 1));
 
   for (int i = 0; i < numItens; i++) {
     individuo.push_back(round(dist(mt)));
   }
 
-  // Corrige indivíduo caso ultrapasse o peso máximo
-  while (true) {
-    for (int i = 0; i < individuo.size(); i++) {
-      if (individuo[i] == 1) {
-        pesoTotal += valoresPesos[i].second;
-      }
-    }
-    if (pesoTotal > pesoMaximo) {
-      pesoTotal = 0;
-      int index = aleatorio(mt);
-      individuo[index] = 0;
-    } else {
-      return individuo;
-    }
-  }
+  return corrigeIndividuo(individuo);
 }
 
 vector<vector<int>> Population(int numCromossomos, int numItens,
@@ -110,11 +117,11 @@ vector<vector<int>> Population(int numCromossomos, int numItens,
 
 void AvaliacaoParalela(vector<int> individuo, vector<pair<int, int>> valoresPesos, int &valorTotal){
   mutex m;
-  m.lock(); // Bloqueia a thread pra evitar que acessem a variável valorTotal
   for (auto i : individuo) {
-    valorTotal += (i * valoresPesos[i].second);
-  }
+  m.lock(); // Bloqueia a thread pra evitar que acessem a variável valorTotal
+    valorTotal += (i * valoresPesos[i].first);
   m.unlock();
+  }
 }
 
 int Avaliacao(vector<int> individuo, vector<pair<int, int>> valoresPesos) {
@@ -159,7 +166,7 @@ vector<pair<int,vector<int>>> DividirVector(vector<pair<int,vector<int>>> &Indiv
   return vetorDividido;
 }
 
-vector<pair<int,vector<int>>> Mutacao(vector<pair<int,vector<int>>> filhos, float taxaMutacao = 0.05){
+vector<pair<int,vector<int>>> Mutacao(vector<pair<int,vector<int>>> filhos){
   // Mutação dos indivíduos
   for(auto &filho: filhos){
     mt19937 mt(rd());
@@ -206,7 +213,7 @@ vector<pair<int,vector<int>>> Evolution(vector<vector<int>> populacao, int pesoM
   sort(IndividuoValor.begin(), IndividuoValor.end(), CompararIntervalo);
 
   vector<pair<int,vector<int>>> maes = DividirVector(IndividuoValor, 0, IndividuoValor.size() / 2);
-  vector<pair<int,vector<int>>> pais = DividirVector(IndividuoValor, 50, IndividuoValor.size());
+  vector<pair<int,vector<int>>> pais = DividirVector(IndividuoValor, IndividuoValor.size() / 2, IndividuoValor.size());
   
   vector<pair<int,vector<int>>> filhos = Cruzamento(pais, maes);
   filhos = Mutacao(filhos);
